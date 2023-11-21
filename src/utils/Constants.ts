@@ -11,7 +11,7 @@ const colors = {
 };
 
 const environment = {
-    domain: 'http://192.168.210.5:8080',
+    domain: 'http://172.28.178.213:8081',
 };
 
 export { colors, environment };
