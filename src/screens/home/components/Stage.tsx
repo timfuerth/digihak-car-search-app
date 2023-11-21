@@ -1,5 +1,6 @@
-import { Dimensions, ImageBackground, StyleSheet, Text } from 'react-native';
+import { Dimensions, Image, ImageBackground, StyleSheet, Text } from 'react-native';
 
+const stageLogo = require('assets/logo.png');
 const stageImage = require('assets/stage.jpg');
 
 const Stage: React.FunctionComponent = () => {
@@ -8,6 +9,7 @@ const Stage: React.FunctionComponent = () => {
     return (
         <ImageBackground source={stageImage} style={[styles.stageImage, { height: imageHeight }]} resizeMode="contain">
             <Text style={styles.title}>Verkaufe dein Auto einfach auf</Text>
+            <Image source={stageLogo} />
             <Text style={styles.bottomText}>Einfach - Sicher - Schnell</Text>
         </ImageBackground>
     );

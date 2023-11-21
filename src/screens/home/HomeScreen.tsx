@@ -1,8 +1,8 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Brands, Models } from 'api/types';
+import { Brands, Models, Registration } from 'api/types';
 import * as React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DropdownComponent, { DropdownItem } from 'screens/home/components/Dropdown';
 import { Stage } from 'screens/home/components/Stage';
@@ -16,6 +16,8 @@ const HomeScreen: React.FunctionComponent = () => {
 
     const [selectedBrand, setSelectedBrand] = React.useState<DropdownItem | null>(null);
     const [selectedModel, setSelectedModel] = React.useState<DropdownItem | null>(null);
+    const [selectedRegistration, setSelectedRegistration] = React.useState<DropdownItem | null>(null);
+    const [selectedMileage, setSelectedMileage] = React.useState<string>('');
 
     const brandsUrl = `${environment.domain}/digihak-car-search/brands`;
     const { data: brandsData, loading: brandsLoading, error: brandsError } = useFetch<Brands[]>(brandsUrl);
@@ -26,10 +28,17 @@ const HomeScreen: React.FunctionComponent = () => {
             : null;
     const { data: modelsData, loading: modelsLoading, error: modelsError } = useFetch<Models[]>(modelsUrl);
 
+    const registrationUrl =
+        selectedBrand != null
+            ? `${environment.domain}/digihak-car-search/cars/registrations?brandId=${selectedBrand?.value}&model=${selectedModel?.value}`
+            : null;
+    const { data: registrationData, loading: registrationLoading } = useFetch<Registration[]>(registrationUrl);
+
     // reset other data, when brand is selected
     const onSelectBrand = (item: DropdownItem) => {
         setSelectedBrand(item);
         setSelectedModel(null);
+        setSelectedRegistration(null);
     };
 
     const brandItems = brandsData?.map((item) => ({
@@ -42,8 +51,13 @@ const HomeScreen: React.FunctionComponent = () => {
         value: item.model,
     }));
 
+    const registrationItems = registrationData?.map((item) => ({
+        label: item.initial_registration,
+        value: item.initial_registration,
+    }));
+
     const error = brandsError || modelsError;
-    const submitButtonDisabled = selectedBrand == null && selectedModel == null;
+    const submitButtonDisabled = selectedBrand == null && selectedModel == null && selectedRegistration == null;
 
     return (
         <ScrollView style={styles.container}>
@@ -67,6 +81,19 @@ const HomeScreen: React.FunctionComponent = () => {
                     data={modelItems ?? []}
                     loading={modelsLoading}
                     disabled={modelItems == null}
+                />
+                <DropdownComponent
+                    title="Erstzulassung"
+                    value={selectedRegistration}
+                    setValue={setSelectedRegistration}
+                    data={registrationItems ?? []}
+                    loading={registrationLoading}
+                    disabled={registrationItems == null}
+                />
+                <TextInput
+                    style={styles.textInput}
+                    value={selectedMileage}
+                    onChange={(event) => setSelectedMileage(event.nativeEvent.text)}
                 />
                 <TouchableOpacity
                     style={[styles.touchableContainer, submitButtonDisabled && { backgroundColor: colors.Neutral300 }]}
@@ -99,6 +126,16 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         paddingHorizontal: 40,
         paddingVertical: 17,
+    },
+    textInput: {
+        height: 50,
+        borderColor: colors.Neutral300,
+        borderWidth: 1,
+        borderRadius: 4,
+        paddingHorizontal: 8,
+        marginBottom: 20,
+        fontFamily: 'OpenSans-Medium',
+        fontSize: 16,
     },
     buttonText: {
         fontFamily: 'OpenSans-Bold',
